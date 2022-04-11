@@ -12,6 +12,7 @@ defmodule Devi.Core.AccountEntry do
   assets = liabilities + capital + revenue - expense - liability
   """
   @type parent_account_type :: :asset | :capital | :dividend | :expense | :liability | :revenue
+  @account_types ~w[asset capital dividend expense liability revenue]a
 
   @typedoc """
   Whether the amount is expected to add to or subtract from the given account
@@ -36,9 +37,34 @@ defmodule Devi.Core.AccountEntry do
           inserted_at: DateTime.t()
         }
 
+  @enforce_keys ~w[account amount type inserted_at]a
   defstruct ~w[account amount type inserted_at]a
 
-  def new(%{account: account, amount: amount, type: type, inserted_at: inserted_at}) do
+  @doc false
+  @spec new(%{
+          account: account_id,
+          amount: pos_integer,
+          type: entry_type,
+          inserted_at: DateTime.t()
+        }) :: t
+  def new(%{
+        account: {account_type, _} = account,
+        amount: amount,
+        type: type,
+        inserted_at: inserted_at
+      }) do
+    unless Enum.any?(@account_types, fn at -> at == account_type end),
+      do:
+        raise(ArgumentError,
+          message: "invalid argument account - should comply with type `account_id`"
+        )
+
+    unless type == :increase || type == :decrease,
+      do:
+        raise(ArgumentError,
+          message: "invalid argument entry - must be `:increase` or `:decrease`"
+        )
+
     %__MODULE__{
       account: account,
       amount: amount,
@@ -47,6 +73,26 @@ defmodule Devi.Core.AccountEntry do
     }
   end
 
+  @doc """
+  Reduces a list of changes to a subtotal value.
+
+  # Examples
+
+    iex> entries = [
+    ...>   %AccountEntry{amount: 5500, type: :increase, ...},
+    ...>   %AccountEntry{amount: 3000, type: :decrese, ...}
+    ...> ]
+    ...> AccountEntry.subtotal(entries)
+    2500
+
+    iex> entries = [
+    ...>   %AccountEntry{amount: 5500, type: :increase, ...},
+    ...>   %AccountEntry{amount: 3000, type: :decrese, ...}
+    ...> ]
+    ...> AccountEntry.subtotal(entries, 500)
+    3000    
+  """
+  @spec subtotal(list(t), non_neg_integer) :: non_neg_integer
   def subtotal(changes, initial_value \\ 0) do
     Enum.reduce(changes, initial_value, fn
       %{amount: amount, type: :increase}, acc -> acc + amount
