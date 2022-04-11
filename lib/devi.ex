@@ -1,16 +1,8 @@
 defmodule Devi do
   @moduledoc """
-  Documentation for `Devi`.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Devi.hello()
-      :world
-
+  The basic **accounting equation** is `Assests == Liabilities + Equity`. This
+  application will provide interfaces for defining these entities, recording
+  their changes over time, and reporting.
   """
   def hello do
     :world
