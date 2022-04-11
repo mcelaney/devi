@@ -10,14 +10,14 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   describe "make_contribution/2" do
     test "creates an increase to capital and asset accounts", %{now: now} do
       %{account_entries: entries, inserted_at: inserted_at} =
-        Core.make_contribution(%{owner: :mac, asset: :cash, amount: 30000}, now)
+        Core.make_contribution(%{owner: :mac, asset: :cash, amount: 30_000}, now)
 
       assert inserted_at == now
 
       assert Enum.any?(entries, fn entry ->
                entry == %AccountEntry{
                  account: {:capital, :mac},
-                 amount: 30000,
+                 amount: 30_000,
                  inserted_at: now,
                  type: :increase
                }
@@ -26,7 +26,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
       assert Enum.any?(entries, fn entry ->
                entry == %AccountEntry{
                  account: {:asset, :cash},
-                 amount: 30000,
+                 amount: 30_000,
                  inserted_at: now,
                  type: :increase
                }
@@ -37,14 +37,14 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   describe "purchase_with_asset/2" do
     test "decreases an asset account and increases another", %{now: now} do
       %{account_entries: entries, inserted_at: inserted_at} =
-        Core.purchase_with_asset(%{from: :cash, to: :land, amount: 20000}, now)
+        Core.purchase_with_asset(%{from: :cash, to: :land, amount: 20_000}, now)
 
       assert inserted_at == now
 
       assert Enum.any?(entries, fn entry ->
                entry == %AccountEntry{
                  account: {:asset, :cash},
-                 amount: 20000,
+                 amount: 20_000,
                  inserted_at: now,
                  type: :decrease
                }
@@ -53,7 +53,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
       assert Enum.any?(entries, fn entry ->
                entry == %AccountEntry{
                  account: {:asset, :land},
-                 amount: 20000,
+                 amount: 20_000,
                  inserted_at: now,
                  type: :increase
                }

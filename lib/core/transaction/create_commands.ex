@@ -4,8 +4,8 @@ defmodule Devi.Core.Transaction.CreateCommands do
   account entry
   """
 
-  alias Devi.Core.Transaction
   alias Devi.Core.AccountEntry
+  alias Devi.Core.Transaction
 
   @doc """
   For use when an owner wants to make a contribution of some asset.

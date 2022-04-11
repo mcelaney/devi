@@ -10,8 +10,8 @@ defmodule Devi.Core.TransactionTest do
   describe "group_account_entries_by_accounts/1" do
     test "will group by accounts within parent accounts", %{now: now} do
       transactions = [
-        Devi.Core.make_contribution(%{owner: :mac, asset: :cash, amount: 30000}, now),
-        Devi.Core.purchase_with_asset(%{from: :cash, to: :land, amount: 20000}, now),
+        Devi.Core.make_contribution(%{owner: :mac, asset: :cash, amount: 30_000}, now),
+        Devi.Core.purchase_with_asset(%{from: :cash, to: :land, amount: 20_000}, now),
         Devi.Core.purchase_on_account(
           %{asset: :supplies, account: :accounts_payable, amount: 500},
           now
@@ -38,13 +38,13 @@ defmodule Devi.Core.TransactionTest do
       assert result[:asset][:cash] == [
                %Devi.Core.AccountEntry{
                  account: {:asset, :cash},
-                 amount: 30000,
+                 amount: 30_000,
                  inserted_at: now,
                  type: :increase
                },
                %Devi.Core.AccountEntry{
                  account: {:asset, :cash},
-                 amount: 20000,
+                 amount: 20_000,
                  inserted_at: now,
                  type: :decrease
                },
@@ -95,15 +95,15 @@ defmodule Devi.Core.TransactionTest do
       next_month = DateTime.from_iso8601("2022-03-03T23:50:07Z") |> elem(1)
 
       transactions = [
-        Core.make_contribution(%{owner: :mac, asset: :cash, amount: 10000}, last_month),
-        Core.make_contribution(%{owner: :mac, asset: :cash, amount: 20000}, this_month),
+        Core.make_contribution(%{owner: :mac, asset: :cash, amount: 10_000}, last_month),
+        Core.make_contribution(%{owner: :mac, asset: :cash, amount: 20_000}, this_month),
         Core.make_contribution(%{owner: :mac, asset: :cash, amount: 3000}, next_month)
       ]
 
       result = Transaction.limit_by_date_range(transactions, "2022-02-01", "2022-02-28")
 
       assert result == [
-               Core.make_contribution(%{owner: :mac, asset: :cash, amount: 20000}, this_month)
+               Core.make_contribution(%{owner: :mac, asset: :cash, amount: 20_000}, this_month)
              ]
     end
   end

@@ -7,12 +7,6 @@ defmodule Devi.Core.Transaction do
 
   See `Devi.Core.Transaction.CreateCommands` for more information on creating
   these structs
-
-  Accounts get a parent type of type atom (one of :asset, :capital, :dividend,
-  :expense, :liability, or :revenue) to ensure it's spot in the accounting
-  equation - however there is no defined type for the sub type. Our examples show
-  atoms like :cash or :accounts_receivable but it really could be any identifier.
-  In practice it's probably an Ecto schema from some caller.
   """
   alias Devi.Core.Transaction.CreateCommands
 
