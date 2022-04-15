@@ -4,15 +4,7 @@ defmodule Devi.Core.AccountEntry do
   positive integers
   """
 
-  @typedoc """
-  Denotes a role in the accounting equation
-
-  assets = liabilities + equity
-  assets = liabilities + capital + retained earnings
-  assets = liabilities + capital + revenue - expense - liability
-  """
-  @type parent_account_type :: :asset | :capital | :dividend | :expense | :liability | :revenue
-  @account_types ~w[asset capital dividend expense liability revenue]a
+  alias Devi.Core.Account
 
   @typedoc """
   Whether the amount is expected to add to or subtract from the given account
@@ -28,10 +20,9 @@ defmodule Devi.Core.AccountEntry do
   it really could be any identifier. In practice it's probably an id from an Ecto
   schema from some caller.
   """
-  @type account_id :: {parent_account_type, any}
 
   @type t :: %__MODULE__{
-          account: account_id,
+          account: Account.t(),
           amount: pos_integer,
           type: entry_type,
           inserted_at: DateTime.t()
@@ -42,35 +33,29 @@ defmodule Devi.Core.AccountEntry do
 
   @doc false
   @spec new(%{
-          account: account_id,
+          account: Account.t(),
           amount: pos_integer,
           type: entry_type,
           inserted_at: DateTime.t()
         }) :: t
-  def new(%{
-        account: {account_type, _} = account,
-        amount: amount,
-        type: type,
-        inserted_at: inserted_at
-      }) do
-    unless Enum.any?(@account_types, fn at -> at == account_type end),
-      do:
-        raise(ArgumentError,
-          message: "invalid argument account - should comply with type `account_id`"
-        )
+  def new(%{account: account, amount: amount, type: type, inserted_at: inserted_at}) do
+    validated_account = Account.new(account)
+    validate_type(type)
 
+    %__MODULE__{
+      account: validated_account,
+      amount: amount,
+      type: type,
+      inserted_at: inserted_at
+    }
+  end
+
+  defp validate_type(type) do
     unless type == :increase || type == :decrease,
       do:
         raise(ArgumentError,
           message: "invalid argument entry - must be `:increase` or `:decrease`"
         )
-
-    %__MODULE__{
-      account: account,
-      amount: amount,
-      type: type,
-      inserted_at: inserted_at
-    }
   end
 
   @doc """
@@ -117,7 +102,7 @@ defmodule Devi.Core.AccountEntry do
   @spec to_subtotals(list(t)) :: map
   def to_subtotals(account_entries) do
     account_entries
-    |> Enum.group_by(fn %{account: {_parent, account}} -> account end)
+    |> Enum.group_by(fn %{account: %{id: account}} -> account end)
     |> Map.new(fn {account, entries} ->
       {
         account,

@@ -2,6 +2,7 @@ defmodule Devi.Core.Statement.IncomeTest do
   use ExUnit.Case, async: true
   import Devi.CoreFixtures
 
+  alias Devi.Core.Account
   alias Devi.Core.Statement.Income
 
   setup do
@@ -17,19 +18,19 @@ defmodule Devi.Core.Statement.IncomeTest do
     setup(%{now: now, then: then} = state) do
       revenues = [
         account_entry_fixture(%{
-          account: {:revenue, :service},
+          account: %Account{type: :revenue, id: :service},
           type: :increase,
           amount: 3000,
           inserted_at: now
         }),
         account_entry_fixture(%{
-          account: {:revenue, :service},
+          account: %Account{type: :revenue, id: :service},
           type: :increase,
           amount: 5500,
           inserted_at: now
         }),
         account_entry_fixture(%{
-          account: {:revenue, :service},
+          account: %Account{type: :revenue, id: :service},
           type: :increase,
           amount: 5500,
           inserted_at: then
@@ -38,19 +39,19 @@ defmodule Devi.Core.Statement.IncomeTest do
 
       expenses = [
         account_entry_fixture(%{
-          account: {:expense, :rent},
+          account: %Account{type: :expense, id: :rent},
           type: :increase,
           amount: 2000,
           inserted_at: now
         }),
         account_entry_fixture(%{
-          account: {:expense, :salary},
+          account: %Account{type: :expense, id: :salary},
           type: :increase,
           amount: 1200,
           inserted_at: now
         }),
         account_entry_fixture(%{
-          account: {:expense, :salary},
+          account: %Account{type: :expense, id: :salary},
           type: :increase,
           amount: 1200,
           inserted_at: then

@@ -12,21 +12,51 @@ defmodule Devi.Core.Transaction.CreateCommands do
 
   Example - a shareholder buys stock
 
-    iex> Core.make_contribution(%{owner: :mac, asset: :cash, amount: 30000}, now)
+    iex> owner_account = Devi.Core.Account.new(%{type: :capital, id: :mac})
+    ...> cash_account = Devi.Core.Account.new(%{type: :asset, id: :cash})
+    ...> Devi.make_contribution(%{capital_account: owner_account, asset_account: cash_account, amount: 30000}, now)
+
+    %Devi.Core.Transaction{
+      account_entries: [
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :cash, type: :asset},
+          amount: 30000,
+          inserted_at: now,
+          type: :increase
+        },
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :mac, type: :capital},
+          amount: 30000,
+          inserted_at: now,
+          type: :increase
+        }
+      ],
+      inserted_at: now
+    }
   """
-  @spec make_contribution(%{owner: any, asset: any, amount: pos_integer}, DateTime.t()) ::
+  @spec make_contribution(
+          %{capital_account: Account.t(), asset_account: Account.t(), amount: pos_integer},
+          DateTime.t()
+        ) ::
           Transaction.t()
-  def make_contribution(%{owner: owner, asset: asset, amount: amount}, now \\ DateTime.utc_now()) do
+  def make_contribution(
+        %{
+          capital_account: %{type: :capital} = owner,
+          asset_account: %{type: :asset} = asset,
+          amount: amount
+        },
+        %DateTime{} = now
+      ) do
     new(
       [
         AccountEntry.new(%{
-          account: {:asset, asset},
+          account: asset,
           amount: amount,
           type: :increase,
           inserted_at: now
         }),
         AccountEntry.new(%{
-          account: {:capital, owner},
+          account: owner,
           amount: amount,
           type: :increase,
           inserted_at: now
@@ -49,21 +79,47 @@ defmodule Devi.Core.Transaction.CreateCommands do
 
   Example - purchase office supplies for cash
 
-    iex> Core.purchase_with_asset(%{to: :supplies, from: :cash, amount: 500}, now)
+    iex> cash_account = Devi.Core.Account.new(%{type: :asset, id: :cash})
+    ...> land_account = Devi.Core.Account.new(%{type: :asset, id: :land})
+    ...> Devi.Core.purchase_with_asset(%{from_account: cash_account, to_account: land_account, amount: 20000}, now)
+
+    %Devi.Core.Transaction{
+      account_entries: [
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :cash, type: :asset},
+          amount: 20000,
+          inserted_at: now,
+          type: :decrease
+        },
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :land, type: :asset},
+          amount: 20000,
+          inserted_at: now,
+          type: :increase
+        }
+      ],
+      inserted_at: now
+    }
   """
-  @spec purchase_with_asset(%{from: any, to: any, amount: pos_integer}, DateTime.t()) ::
+  @spec purchase_with_asset(
+          %{from_account: Account.t(), to_account: Account.t(), amount: pos_integer},
+          DateTime.t()
+        ) ::
           Transaction.t()
-  def purchase_with_asset(%{from: from, to: to, amount: amount}, now \\ DateTime.utc_now()) do
+  def purchase_with_asset(
+        %{from_account: %{type: :asset} = from, to_account: %{type: :asset} = to, amount: amount},
+        %DateTime{} = now
+      ) do
     new(
       [
         AccountEntry.new(%{
-          account: {:asset, from},
+          account: from,
           amount: amount,
           type: :decrease,
           inserted_at: now
         }),
         AccountEntry.new(%{
-          account: {:asset, to},
+          account: to,
           amount: amount,
           type: :increase,
           inserted_at: now
@@ -78,24 +134,51 @@ defmodule Devi.Core.Transaction.CreateCommands do
 
   Example - purchase office supplies on credit
 
-    iex> Core.purchase_on_account(%{asset: :supplies, account: :accounts_payable, amount: 500}, now)
+    iex>supplies_account = Devi.Core.Account.new(%{type: :asset, id: :supplies})
+    ...>accounts_payable_account = Devi.Core.Account.new(%{type: :liability, id: :accounts_payable})
+    ...>Devi.Core.purchase_on_account(%{asset_account: supplies_account, liability_account: accounts_payable_account, amount: 500}, now)
+
+    %Devi.Core.Transaction{
+      account_entries: [
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :accounts_payable, type: :liability},
+          amount: 500,
+          inserted_at: now,
+          type: :increase
+        },
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :supplies, type: :asset},
+          amount: 500,
+          inserted_at: now,
+          type: :increase
+        }
+      ],
+      inserted_at: now
+    }
   """
-  @spec purchase_on_account(%{asset: any, account: any, amount: pos_integer}, DateTime.t()) ::
+  @spec purchase_on_account(
+          %{asset_account: Account.t(), liability_account: Account.t(), amount: pos_integer},
+          DateTime.t()
+        ) ::
           Transaction.t()
   def purchase_on_account(
-        %{asset: asset, account: account, amount: amount},
-        now \\ DateTime.utc_now()
+        %{
+          asset_account: %{type: :asset} = asset,
+          liability_account: %{type: :liability} = liability,
+          amount: amount
+        },
+        %DateTime{} = now
       ) do
     new(
       [
         AccountEntry.new(%{
-          account: {:liability, account},
+          account: liability,
           amount: amount,
           type: :increase,
           inserted_at: now
         }),
         AccountEntry.new(%{
-          account: {:asset, asset},
+          account: asset,
           amount: amount,
           type: :increase,
           inserted_at: now
@@ -118,24 +201,51 @@ defmodule Devi.Core.Transaction.CreateCommands do
 
   Example - a customer owes an amount of cash for servcies rendered
 
-    iex> Core.earn_asset_revenue(%{asset: :accounts_receivable, revenue: :service, amount: 3000}, now)
+    iex> service_account = Devi.Core.Account.new(%{type: :revenue, id: :service})
+    ...> accounts_receivable_account = Devi.Core.Account.new(%{type: :asset, id: :accounts_receivable})
+    ...> Devi.Core.earn_asset_revenue(%{asset_account: accounts_receivable_account, revenue_account: service_account, amount: 3000}, now)
+
+    %Devi.Core.Transaction{
+      account_entries: [
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :accounts_receivable, type: :asset},
+          amount: 3000,
+          inserted_at: now,
+          type: :increase
+        },
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :service, type: :revenue},
+          amount: 3000,
+          inserted_at: now,
+          type: :increase
+        }
+      ],
+      inserted_at: now
+    }
   """
-  @spec earn_asset_revenue(%{asset: any, revenue: any, amount: pos_integer}, DateTime.t()) ::
+  @spec earn_asset_revenue(
+          %{asset_account: Account.t(), revenue_account: Account.t(), amount: pos_integer},
+          DateTime.t()
+        ) ::
           Transaction.t()
   def earn_asset_revenue(
-        %{asset: asset, revenue: revenue, amount: amount},
-        now \\ DateTime.utc_now()
+        %{
+          asset_account: %{type: :asset} = asset,
+          revenue_account: %{type: :revenue} = revenue,
+          amount: amount
+        },
+        %DateTime{} = now
       ) do
     new(
       [
         AccountEntry.new(%{
-          account: {:asset, asset},
+          account: asset,
           amount: amount,
           type: :increase,
           inserted_at: now
         }),
         AccountEntry.new(%{
-          account: {:revenue, revenue},
+          account: revenue,
           amount: amount,
           type: :increase,
           inserted_at: now
@@ -158,21 +268,51 @@ defmodule Devi.Core.Transaction.CreateCommands do
 
   Example - a customer pays an invoice with cash
 
-    iex> Core.pay_on_account(%{asset: :cash, payment: :accounts_payable, amount: 300}, now)
+    iex> cash_account = Devi.Core.Account.new(%{type: :asset, id: :cash})
+    ...> accounts_payable_account = Devi.Core.Account.new(%{type: :liability, id: :accounts_payable})
+    ...> Devi.Core.pay_on_account(%{asset_account: cash_account, liability_account: accounts_payable_account, amount: 300}, now)
+    
+    %Devi.Core.Transaction{
+      account_entries: [
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :accounts_payable, type: :liability},
+          amount: 300,
+          inserted_at: now,
+          type: :decrease
+        },
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :cash, type: :asset},
+          amount: 300,
+          inserted_at: now,
+          type: :decrease
+        }
+      ],
+      inserted_at: now
+    }
   """
-  @spec pay_on_account(%{asset: any, payment: any, amount: pos_integer}, DateTime.t()) ::
+  @spec pay_on_account(
+          %{asset_account: Account.t(), liability_account: Account.t(), amount: pos_integer},
+          DateTime.t()
+        ) ::
           Transaction.t()
-  def pay_on_account(%{asset: asset, payment: payment, amount: amount}, now \\ DateTime.utc_now()) do
+  def pay_on_account(
+        %{
+          asset_account: %{type: :asset} = asset,
+          liability_account: %{type: :liability} = liability,
+          amount: amount
+        },
+        %DateTime{} = now
+      ) do
     new(
       [
         AccountEntry.new(%{
-          account: {:liability, payment},
+          account: liability,
           amount: amount,
           type: :decrease,
           inserted_at: now
         }),
         AccountEntry.new(%{
-          account: {:asset, asset},
+          account: asset,
           amount: amount,
           type: :decrease,
           inserted_at: now
@@ -185,23 +325,53 @@ defmodule Devi.Core.Transaction.CreateCommands do
   @doc """
   For use when paying for an expense
 
-  Example - a cash payment for rent
+  Example - a cash payment for salary
 
-    iex> Core.pay_expenses(%{expense: :rent, asset: :cash, amount: 2000}, now)
+    iex> cash_account = Devi.Core.Account.new(%{type: :asset, id: :cash})
+    ...> salary_account = Devi.Core.Account.new(%{type: :expense, id: :salary})
+    ...> Devi.Core.pay_expenses(%{expense_account: salary_account, asset_account: cash_account, amount: 1200}, now)
+    
+    %Devi.Core.Transaction{
+      account_entries: [
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :salary, type: :asset},
+          amount: 1200,
+          inserted_at: now,
+          type: :increase
+        },
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :cash, type: :asset},
+          amount: 1200,
+          inserted_at: now,
+          type: :decrease
+        }
+      ],
+      inserted_at: now
+    }
   """
-  @spec pay_expenses(%{asset: any, expense: any, amount: pos_integer}, DateTime.t()) ::
+  @spec pay_expenses(
+          %{asset_account: Account.t(), expense_account: Account.t(), amount: pos_integer},
+          DateTime.t()
+        ) ::
           Transaction.t()
-  def pay_expenses(%{asset: asset, expense: expense, amount: amount}, now \\ DateTime.utc_now()) do
+  def pay_expenses(
+        %{
+          asset_account: %{type: :asset} = asset,
+          expense_account: %{type: :expense} = expense,
+          amount: amount
+        },
+        %DateTime{} = now
+      ) do
     new(
       [
         AccountEntry.new(%{
-          account: {:expense, expense},
+          account: expense,
           amount: amount,
           type: :increase,
           inserted_at: now
         }),
         AccountEntry.new(%{
-          account: {:asset, asset},
+          account: asset,
           amount: amount,
           type: :decrease,
           inserted_at: now
@@ -219,21 +389,51 @@ defmodule Devi.Core.Transaction.CreateCommands do
 
   Example - a divident payment to an owner.
 
-    iex> Core.pay_dividend(%{dividend: :mac, asset: :cash, amount: 5000}, now)
+    iex> cash_account = Devi.Core.Account.new(%{type: :asset, id: :cash})
+    ...> dividend_account = Devi.Core.Account.new(%{type: :dividend, id: :mac})
+    ...> Devi.Core.pay_dividend(%{dividend_account: dividend_account, asset_account: cash_account, amount: 5000}, now)
+
+    %Devi.Core.Transaction{
+      account_entries: [
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :mac, type: :dividend},
+          amount: 5000,
+          inserted_at: now,
+          type: :increase
+        },
+        %Devi.Core.AccountEntry{
+          account: %Devi.Core.Account{id: :cash, type: :asset},
+          amount: 5000,
+          inserted_at: now,
+          type: :decrease
+        }
+      ],
+      inserted_at: now
+    }
   """
-  @spec pay_dividend(%{asset: any, dividend: any, amount: pos_integer}, DateTime.t()) ::
+  @spec pay_dividend(
+          %{asset_account: Account.t(), dividend_account: Account.t(), amount: pos_integer},
+          DateTime.t()
+        ) ::
           Transaction.t()
-  def pay_dividend(%{asset: asset, dividend: dividend, amount: amount}, now \\ DateTime.utc_now()) do
+  def pay_dividend(
+        %{
+          asset_account: %{type: :asset} = asset,
+          dividend_account: %{type: :dividend} = dividend,
+          amount: amount
+        },
+        %DateTime{} = now
+      ) do
     new(
       [
         AccountEntry.new(%{
-          account: {:dividend, dividend},
+          account: dividend,
           amount: amount,
           type: :increase,
           inserted_at: now
         }),
         AccountEntry.new(%{
-          account: {:asset, asset},
+          account: asset,
           amount: amount,
           type: :decrease,
           inserted_at: now

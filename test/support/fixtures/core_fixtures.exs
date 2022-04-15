@@ -1,40 +1,52 @@
 defmodule Devi.CoreFixtures do
+  alias Devi.Core.Account
   alias Devi.Core.AccountEntry
 
-  def asset_account_id(account \\ :cash) do
-    {:asset, account}
+  #####
+  # Account
+  ##
+  def asset_account_fixture(id \\ "any") do
+    Account.new(%{type: :asset, id: id})
   end
 
-  def capital_account_id(account \\ :mac) do
-    {:capital, account}
+  def capital_account_fixture(id \\ "any") do
+    Account.new(%{type: :capital, id: id})
   end
 
-  def dividend_account_id(account \\ :mac) do
-    {:dividend, account}
+  def dividend_account_fixture(id \\ "any") do
+    Account.new(%{type: :dividend, id: id})
   end
 
-  def expense_account_id(account \\ :rent) do
-    {:expense, account}
+  def expense_account_fixture(id \\ "any") do
+    Account.new(%{type: :expense, id: id})
   end
 
-  def liability_account_id(account \\ :accounts_payable) do
-    {:liability, account}
+  def liability_account_fixture(id \\ "any") do
+    Account.new(%{type: :liability, id: id})
   end
 
-  def revenue_account_id(account \\ :service) do
-    {:revenue, account}
+  def revenue_account_fixture(id \\ "any") do
+    Account.new(%{type: :revenue, id: id})
+  end
+
+  def account_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{type: :asset, id: :cash})
   end
 
   def account_functions do
     [
-      &asset_account_id/1,
-      &capital_account_id/1,
-      &dividend_account_id/1,
-      &expense_account_id/1,
-      &liability_account_id/1,
-      &revenue_account_id/1
+      &asset_account_fixture/1,
+      &capital_account_fixture/1,
+      &dividend_account_fixture/1,
+      &expense_account_fixture/1,
+      &liability_account_fixture/1,
+      &revenue_account_fixture/1
     ]
   end
+
+  #####
+  # Account Entry
+  ##
 
   @types ~w[increase decrease]a
 
