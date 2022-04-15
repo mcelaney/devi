@@ -1,6 +1,5 @@
 defmodule Devi.Core.Transaction.CreateCommandsTest do
   use ExUnit.Case, async: true
-  alias Devi.Core
   alias Devi.Core.AccountEntry
 
   setup do
@@ -10,7 +9,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   describe "make_contribution/2" do
     test "creates an increase to capital and asset accounts", %{now: now} do
       %{account_entries: entries, inserted_at: inserted_at} =
-        Core.make_contribution(%{owner: :mac, asset: :cash, amount: 30_000}, now)
+        Devi.make_contribution(%{owner: :mac, asset: :cash, amount: 30_000}, now)
 
       assert inserted_at == now
 
@@ -37,7 +36,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   describe "purchase_with_asset/2" do
     test "decreases an asset account and increases another", %{now: now} do
       %{account_entries: entries, inserted_at: inserted_at} =
-        Core.purchase_with_asset(%{from: :cash, to: :land, amount: 20_000}, now)
+        Devi.purchase_with_asset(%{from: :cash, to: :land, amount: 20_000}, now)
 
       assert inserted_at == now
 
@@ -64,7 +63,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   describe "purchase_on_account/2" do
     test "increases an asset account as well as a liability account", %{now: now} do
       %{account_entries: entries, inserted_at: inserted_at} =
-        Core.purchase_on_account(
+        Devi.purchase_on_account(
           %{asset: :supplies, account: :accounts_payable, amount: 500},
           now
         )
@@ -94,7 +93,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   describe "earn_asset_revenue/2" do
     test "increases an asset account and a revenue account", %{now: now} do
       %{account_entries: entries, inserted_at: inserted_at} =
-        Core.earn_asset_revenue(%{asset: :cash, revenue: :service, amount: 5500}, now)
+        Devi.earn_asset_revenue(%{asset: :cash, revenue: :service, amount: 5500}, now)
 
       assert inserted_at == now
 
@@ -121,7 +120,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   describe "pay_on_account/2" do
     test "decreases an asset account as well as a liability account", %{now: now} do
       %{account_entries: entries, inserted_at: inserted_at} =
-        Core.pay_on_account(%{asset: :cash, payment: :accounts_payable, amount: 300}, now)
+        Devi.pay_on_account(%{asset: :cash, payment: :accounts_payable, amount: 300}, now)
 
       assert inserted_at == now
 
@@ -148,7 +147,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   describe "pay_expenses/2" do
     test "decreases an asset account and increases an expense account", %{now: now} do
       %{account_entries: entries, inserted_at: inserted_at} =
-        Core.pay_expenses(%{expense: :rent, asset: :cash, amount: 2000}, now)
+        Devi.pay_expenses(%{expense: :rent, asset: :cash, amount: 2000}, now)
 
       assert inserted_at == now
 
@@ -175,7 +174,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   describe "pay_dividend/2" do
     test "decreases an asset account and increases a dividend account", %{now: now} do
       %{account_entries: entries, inserted_at: inserted_at} =
-        Core.pay_dividend(%{dividend: :dividend, asset: :cash, amount: 5000}, now)
+        Devi.pay_dividend(%{dividend: :dividend, asset: :cash, amount: 5000}, now)
 
       assert inserted_at == now
 
