@@ -110,6 +110,18 @@ defmodule Devi.Core.Transaction do
     end)
   end
 
+  def from_before(transactions, end_date) do
+    Enum.filter(transactions, fn transaction ->
+      cond do
+        DateTime.compare(transaction.inserted_at, datetime_value(:end, end_date)) == :gt ->
+          false
+
+        true ->
+          true
+      end
+    end)
+  end
+
   defp datetime_value(:start, value),
     do: value |> Kernel.<>("T00:00:00Z") |> DateTime.from_iso8601() |> elem(1)
 

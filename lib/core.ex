@@ -13,6 +13,5 @@ defmodule Devi.Core do
   defdelegate purchase_on_account(params, inserted_at), to: Transaction
   defdelegate purchase_with_asset(params, inserted_at), to: Transaction
 
-  defdelegate generate_income_statement(transactions), to: Statement
   defdelegate generate_income_statement(transactions, start_date, end_date), to: Statement
 end

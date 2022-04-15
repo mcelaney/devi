@@ -6,6 +6,5 @@ defmodule Devi.Core.Statement do
 
   alias Devi.Core.Statement.Income
 
-  defdelegate generate_income_statement(transactions), to: Income, as: :new
   defdelegate generate_income_statement(transactions, start_date, end_date), to: Income, as: :new
 end

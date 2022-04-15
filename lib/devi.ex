@@ -17,6 +17,5 @@ defmodule Devi do
   defdelegate purchase_with_asset(params, inserted_at), to: Core
 
   # Statement Creation
-  defdelegate generate_income_statement(transactions), to: Core
   defdelegate generate_income_statement(transactions, start_date, end_date), to: Core
 end
