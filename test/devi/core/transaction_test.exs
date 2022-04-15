@@ -5,7 +5,7 @@ defmodule Devi.Core.TransactionTest do
   alias Devi.LedgerFixtures
 
   setup do
-    %{now: DateTime.from_iso8601("2022-03-03T23:50:07Z") |> elem(1)}
+    %{now: "2022-03-03T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)}
   end
 
   describe "group_account_entries_by_accounts/1" do
@@ -65,26 +65,6 @@ defmodule Devi.Core.TransactionTest do
                  inserted_at: now,
                  type: :decrease
                }
-             ]
-    end
-  end
-
-  describe "limit_by_date_range/2" do
-    test "will filter transactions not in the date range from a list" do
-      last_month = DateTime.from_iso8601("2022-01-03T23:50:07Z") |> elem(1)
-      this_month = DateTime.from_iso8601("2022-02-03T23:50:07Z") |> elem(1)
-      next_month = DateTime.from_iso8601("2022-03-03T23:50:07Z") |> elem(1)
-
-      transactions = [
-        Devi.make_contribution(%{owner: :mac, asset: :cash, amount: 10_000}, last_month),
-        Devi.make_contribution(%{owner: :mac, asset: :cash, amount: 20_000}, this_month),
-        Devi.make_contribution(%{owner: :mac, asset: :cash, amount: 3000}, next_month)
-      ]
-
-      result = Transaction.limit_by_date_range(transactions, "2022-02-01", "2022-02-28")
-
-      assert result == [
-               Devi.make_contribution(%{owner: :mac, asset: :cash, amount: 20_000}, this_month)
              ]
     end
   end

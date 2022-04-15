@@ -7,7 +7,7 @@ defmodule Devi.Core.Dateable do
   @typedoc """
   If a string expects an iso8601 - year-mo-da
   """
-  @type date_value :: Date.t | DateTime.t | String.t
+  @type date_value :: Date.t() | DateTime.t() | String.t()
   @type filterable :: %{inserted_at: date_value}
 
   @doc """
@@ -65,7 +65,11 @@ defmodule Devi.Core.Dateable do
 
   "In range" is defined by whole day inclusive
   """
-  @spec split_by_date(list(filterable), date_value, date_value) :: %{before_range: date_value, after_range: date_value, in_range: date_value}
+  @spec split_by_date(list(filterable), date_value, date_value) :: %{
+          before_range: date_value,
+          after_range: date_value,
+          in_range: date_value
+        }
   def split_by_date(items, start_date, end_date) do
     Enum.group_by(items, fn %{inserted_at: date} ->
       cond do
@@ -79,7 +83,7 @@ defmodule Devi.Core.Dateable do
   @doc """
   Transforms a given value in to a date.
   """
-  @spec to_date(date_value) :: Date.t
+  @spec to_date(date_value) :: Date.t()
   def to_date(%Date{} = limit), do: limit
 
   def to_date(%NaiveDateTime{year: year, month: month, day: day}) do
@@ -92,5 +96,5 @@ defmodule Devi.Core.Dateable do
 
   def to_date(date) do
     Date.from_iso8601!(date)
-  end  
+  end
 end

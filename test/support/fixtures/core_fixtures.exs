@@ -32,9 +32,10 @@ defmodule Devi.CoreFixtures do
       &dividend_account_id/1,
       &expense_account_id/1,
       &liability_account_id/1,
-      &revenue_account_id/1,
+      &revenue_account_id/1
     ]
   end
+
   @types ~w[increase decrease]a
 
   def account_entry_attributes(attrs \\ %{}) do
@@ -43,7 +44,7 @@ defmodule Devi.CoreFixtures do
       amount: :rand.uniform(30_000),
       type: Enum.random(@types),
       inserted_at: Faker.DateTime.backward(90)
-    })  
+    })
   end
 
   def account_entry_fixture(attrs \\ %{}) do

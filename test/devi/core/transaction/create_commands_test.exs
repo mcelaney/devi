@@ -3,7 +3,7 @@ defmodule Devi.Core.Transaction.CreateCommandsTest do
   alias Devi.Core.AccountEntry
 
   setup do
-    %{now: DateTime.from_iso8601("2022-03-03T23:50:07Z") |> elem(1)}
+    %{now: "2022-03-03T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)}
   end
 
   describe "make_contribution/2" do

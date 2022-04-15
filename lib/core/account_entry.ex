@@ -74,51 +74,6 @@ defmodule Devi.Core.AccountEntry do
   end
 
   @doc """
-  Given a list of transactions limits them to a given range between start_date 
-  and end_date inclusively.
-
-  The start_date and end_date values are expected as Strings "year-mo-da"
-
-  # Examples
-
-    iex> transactions = [
-    ...>   %Devi.Core.Transaction{inserted_at: ~U[2022-01-03 23:50:07Z], ...},
-    ...>   %Devi.Core.Transaction{inserted_at: ~U[2022-02-03 23:50:07Z], ...},
-    ...>   %Devi.Core.Transaction{inserted_at: ~U[2022-03-03 23:50:07Z], ...}
-    ...> ]
-    ...> Transaction.limit_by_date_range(transactions, "2022-02-01", "2022-02-28")
-
-    [
-      %Devi.Core.Transaction{inserted_at: ~U[2022-02-03 23:50:07Z], ...},
-    ]
-  """
-  @spec limit_by_date_range(list(t), String.t(), String.t()) :: list(t)
-  def limit_by_date_range(transactions, start_date, end_date) do
-    Enum.filter(transactions, fn transaction ->
-      cond do
-        DateTime.compare(transaction.inserted_at, datetime_value(:start, start_date)) == :lt ->
-          false
-
-        DateTime.compare(transaction.inserted_at, datetime_value(:end, end_date)) == :gt ->
-          false
-
-        true ->
-          true
-      end
-    end)
-  end
-
-
-  defp datetime_value(_, %DateTime{} = value), do: value
-  defp datetime_value(_, %Date{} = value), do: value
-
-  defp datetime_value(:start, value),
-    do: value |> Kernel.<>("T00:00:00Z") |> DateTime.from_iso8601() |> elem(1)
-
-  defp datetime_value(:end, value),
-    do: value |> Kernel.<>("T23:59:59Z") |> DateTime.from_iso8601() |> elem(1)
-
-  @doc """
   Reduces a list of changes to a subtotal value.
 
   # Examples
@@ -142,6 +97,32 @@ defmodule Devi.Core.AccountEntry do
     Enum.reduce(changes, initial_value, fn
       %{amount: amount, type: :increase}, acc -> acc + amount
       %{amount: amount, type: :decrease}, acc -> acc - amount
+    end)
+  end
+
+  @doc """
+  Reduces a list of account entries to a keyed list of subtotal values
+
+  # Examples
+
+    iex> entries = [
+    ...>   %AccountEntry{account: {:asset, "any"}, amount: 8, type: :increase, ...},
+    ...>   %AccountEntry{account: {:asset, "any"}, amount: 2, type: :decrease, ...},
+    ...>   %AccountEntry{account: {:asset, "other"}, amount: 3, type: :increase, ...},
+    ...>   %AccountEntry{account: {:asset, "other"}, amount: 1, type: :decrease, ...},
+    ...> ]
+    ...> AccountEntry.to_subtotals(entries)
+    %{"any" => 6, "other" => 2}
+  """
+  @spec to_subtotals(list(t)) :: map
+  def to_subtotals(account_entries) do
+    account_entries
+    |> Enum.group_by(fn %{account: {_parent, account}} -> account end)
+    |> Map.new(fn {account, entries} ->
+      {
+        account,
+        subtotal(entries)
+      }
     end)
   end
 end

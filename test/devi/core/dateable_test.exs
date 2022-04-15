@@ -1,12 +1,23 @@
 defmodule Devi.Core.DateableTest do
   use ExUnit.Case, async: true
-  alias Devi.CoreFixtures
   alias Devi.Core.Dateable
+  alias Devi.CoreFixtures
 
   setup do
-    early = CoreFixtures.account_entry_fixture(%{inserted_at: DateTime.from_iso8601("2022-01-01T23:50:07Z") |> elem(1)})
-    middle = CoreFixtures.account_entry_fixture(%{inserted_at: DateTime.from_iso8601("2022-02-01T23:50:07Z") |> elem(1)})
-    late = CoreFixtures.account_entry_fixture(%{inserted_at: DateTime.from_iso8601("2022-03-01T23:50:07Z") |> elem(1)})
+    early =
+      CoreFixtures.account_entry_fixture(%{
+        inserted_at: "2022-01-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
+      })
+
+    middle =
+      CoreFixtures.account_entry_fixture(%{
+        inserted_at: "2022-02-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
+      })
+
+    late =
+      CoreFixtures.account_entry_fixture(%{
+        inserted_at: "2022-03-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
+      })
 
     %{entries: [early, middle, late], early: early, middle: middle, late: late}
   end
@@ -36,13 +47,19 @@ defmodule Devi.Core.DateableTest do
   end
 
   describe "split_by_date/3" do
-    test "returns only items in the date range", %{entries: entries, early: early, middle: middle, late: late} do
+    test "returns only items in the date range", %{
+      entries: entries,
+      early: early,
+      middle: middle,
+      late: late
+    } do
       result = Dateable.split_by_date(entries, "2022-02-01", "2022-02-28")
+
       assert result == %{
-        before_range: [early],
-        in_range: [middle],
-        after_range: [late]
-      }
+               before_range: [early],
+               in_range: [middle],
+               after_range: [late]
+             }
     end
   end
 
