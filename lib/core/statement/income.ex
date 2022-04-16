@@ -23,12 +23,12 @@ defmodule Devi.Core.Statement.Income do
   So we provide the values in a struct:
 
   %Devi.Core.Statement.Income{
-    end_date: "2022-11-01",
+    end_date: ~D[2022-11-01],
     expenses: %{rent: 2000, salary: 1200},
     expenses_subtotal: 3200,
     revenues: %{ticket: 8500},
     revenues_subtotal: 8500,
-    start_date: "2022-11-30",
+    start_date: ~D[2022-11-30],
     total: 5300
   }
   """
@@ -51,7 +51,7 @@ defmodule Devi.Core.Statement.Income do
           end_date: Date.t()
         }
 
-  @enforce_keys ~w[expenses expenses_subtotal revenues revenues_subtotal total]a
+  @enforce_keys ~w[expenses expenses_subtotal revenues revenues_subtotal total start_date end_date]a
   defstruct ~w[expenses expenses_subtotal revenues revenues_subtotal total start_date end_date]a
 
   @doc """
@@ -67,7 +67,7 @@ defmodule Devi.Core.Statement.Income do
     ...>   %Devi.Core.AccountEntry{inserted_at: ~U[2022-02-03 23:50:07Z], ...},
     ...>   %Devi.Core.AccountEntry{inserted_at: ~U[2022-03-03 23:50:07Z], ...}
     ...> ]
-    ...> revenues = [
+    ...> expenses = [
     ...>   %Devi.Core.AccountEntry{inserted_at: ~U[2022-01-03 23:50:07Z], ...},
     ...>   %Devi.Core.AccountEntry{inserted_at: ~U[2022-02-03 23:50:07Z], ...},
     ...>   %Devi.Core.AccountEntry{inserted_at: ~U[2022-03-03 23:50:07Z], ...}
@@ -93,10 +93,12 @@ defmodule Devi.Core.Statement.Income do
         }) :: t
   def new(%{expenses: expenses, revenues: revenues, start_date: start_date, end_date: end_date}) do
     %__MODULE__{
+      end_date: nil,
       expenses: nil,
       expenses_subtotal: nil,
       revenues: nil,
       revenues_subtotal: nil,
+      start_date: nil,
       total: nil
     }
     |> put_account_summaries(expenses, revenues, start_date, end_date)

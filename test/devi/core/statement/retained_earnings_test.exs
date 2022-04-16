@@ -1,9 +1,9 @@
-defmodule Devi.Core.Statement.IncomeTest do
+defmodule Devi.Core.Statement.RetainedEarningsTest do
   use ExUnit.Case, async: true
   import Devi.CoreFixtures
 
   alias Devi.Core.Account
-  alias Devi.Core.Statement.Income
+  alias Devi.Core.Statement.RetainedEarnings
 
   setup do
     %{
@@ -58,33 +58,50 @@ defmodule Devi.Core.Statement.IncomeTest do
         })
       ]
 
+      dividends = [
+        account_entry_fixture(%{
+          account: %Account{type: :dividend, id: :rent},
+          type: :increase,
+          amount: 500,
+          inserted_at: now
+        }),
+        account_entry_fixture(%{
+          account: %Account{type: :dividend, id: :salary},
+          type: :increase,
+          amount: 700,
+          inserted_at: then
+        })
+      ]
+
       state
       |> Map.put(:revenues, revenues)
       |> Map.put(:expenses, expenses)
+      |> Map.put(:dividends, dividends)
     end
 
     test "will generate an income statememnt", %{
       revenues: revenues,
       expenses: expenses,
+      dividends: dividends,
       begining_of_month: begining_of_month,
       end_of_month: end_of_month
     } do
       result =
-        Devi.generate_income_statement(%{
-          revenues: revenues,
-          expenses: expenses,
+        Devi.generate_retained_earnings_statement(%{
+          revenue: revenues,
+          expense: expenses,
+          dividend: dividends,
           start_date: begining_of_month,
           end_date: end_of_month
         })
 
-      assert result == %Income{
+      assert result == %RetainedEarnings{
+               dividends: 500,
                end_date: end_of_month,
-               expenses: %{rent: 2000, salary: 1200},
-               expenses_subtotal: 3200,
-               revenues: %{service: 8500},
-               revenues_subtotal: 8500,
+               ending: 8400,
+               net_income: 5300,
                start_date: begining_of_month,
-               total: 5300
+               starting: 3600
              }
     end
   end

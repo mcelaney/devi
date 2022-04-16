@@ -14,4 +14,5 @@ defmodule Devi.Core do
   defdelegate purchase_with_asset(params, inserted_at), to: Transaction
 
   defdelegate generate_income_statement(params), to: Statement
+  defdelegate generate_retained_earnings_statement(params), to: Statement
 end

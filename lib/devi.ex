@@ -18,4 +18,5 @@ defmodule Devi do
 
   # Statement Creation
   defdelegate generate_income_statement(params), to: Core
+  defdelegate generate_retained_earnings_statement(params), to: Core
 end

@@ -5,6 +5,8 @@ defmodule Devi.Core.Statement do
   """
 
   alias Devi.Core.Statement.Income
+  alias Devi.Core.Statement.RetainedEarnings
 
   defdelegate generate_income_statement(params), to: Income, as: :new
+  defdelegate generate_retained_earnings_statement(params), to: RetainedEarnings, as: :new
 end
