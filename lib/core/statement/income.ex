@@ -42,9 +42,9 @@ defmodule Devi.Core.Statement.Income do
   @type date_value :: Dateable.date_value()
 
   @type t :: %__MODULE__{
-          expenses: non_neg_integer,
+          expenses: %{optional(any) => non_neg_integer},
           expenses_subtotal: non_neg_integer,
-          revenues: non_neg_integer,
+          revenues: %{optional(any) => non_neg_integer},
           revenues_subtotal: non_neg_integer,
           total: non_neg_integer,
           start_date: Date.t(),
