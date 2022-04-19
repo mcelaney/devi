@@ -1,10 +1,14 @@
-defmodule Devi.Core.AccountEntry do
+defmodule Devi.Core.LedgerEntry do
   @moduledoc """
-  Represents a discrete change in value on an account All amounts are recorded as
-  positive integers
+  Represents a discrete change in value on an account. These are always made in
+  groups of two or more and as such primarily recorded in `Transaction` structs
+  on a ledger
+
+  All amounts are recorded as positive integers. Additions to the total have a
+  type of `:credit` and subtractions `:debit`
   """
 
-  alias Devi.Core.Account
+  alias Devi.Core.GeneralLedger.Account
 
   @typedoc """
   Whether the amount is expected to add to or subtract from the given account
@@ -31,31 +35,24 @@ defmodule Devi.Core.AccountEntry do
   @enforce_keys ~w[account amount type inserted_at]a
   defstruct ~w[account amount type inserted_at]a
 
-  @doc false
-  @spec new(%{
-          account: Account.t(),
-          amount: pos_integer,
-          type: entry_type,
-          inserted_at: DateTime.t()
-        }) :: t
-  def new(%{account: account, amount: amount, type: type, inserted_at: inserted_at}) do
-    validated_account = Account.new(account)
-    validate_type(type)
-
+  @spec decrease_by(Account.t(), non_neg_integer, DateTime.t()) :: t
+  def decrease_by(%{id: _, type: _} = account, amount, now) do
     %__MODULE__{
-      account: validated_account,
+      account: account,
       amount: amount,
-      type: type,
-      inserted_at: inserted_at
+      type: :decrease,
+      inserted_at: now
     }
   end
 
-  defp validate_type(type) do
-    unless type == :increase || type == :decrease,
-      do:
-        raise(ArgumentError,
-          message: "invalid argument entry - must be `:increase` or `:decrease`"
-        )
+  @spec increase_by(Account.t(), non_neg_integer, DateTime.t()) :: t
+  def increase_by(%{id: _, type: _} = account, amount, now) do
+    %__MODULE__{
+      account: account,
+      amount: amount,
+      type: :increase,
+      inserted_at: now
+    }
   end
 
   @doc """

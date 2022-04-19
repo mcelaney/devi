@@ -16,28 +16,12 @@ defmodule Devi.Core.Dateable do
 
   Filter is by whole day inclusive
   """
-  @spec limit_by_date_range(list(filterable), date_value, date_value) :: list(filterable)
-  def limit_by_date_range(items, start_date, end_date) do
+  @spec entries_in_range(list(filterable), date_value, date_value) :: list(filterable)
+  def entries_in_range(items, start_date, end_date) do
     Enum.filter(items, fn %{inserted_at: date} ->
       cond do
         Date.compare(to_date(date), to_date(start_date)) == :lt -> false
         Date.compare(to_date(date), to_date(end_date)) == :gt -> false
-        true -> true
-      end
-    end)
-  end
-
-  @doc """
-  Given a list of items containing an inserted_at value returns a list of items
-  filtered by the given start_date
-
-  Filter is by whole day inclusive
-  """
-  @spec limit_by_start_date(list(filterable), date_value) :: list(filterable)
-  def limit_by_start_date(items, start_date) do
-    Enum.filter(items, fn %{inserted_at: date} ->
-      cond do
-        Date.compare(to_date(date), to_date(start_date)) == :lt -> false
         true -> true
       end
     end)
@@ -47,35 +31,14 @@ defmodule Devi.Core.Dateable do
   Given a list of items containing an inserted_at value returns a list of items
   filtered by the given date range
 
-  Filter is by whole day inclusive
+  Filter excludes the end_date
   """
-  @spec limit_by_end_date(list(filterable), date_value) :: list(filterable)
-  def limit_by_end_date(items, end_date) do
+  @spec entries_before(list(filterable), date_value) :: list(filterable)
+  def entries_before(items, end_date) do
     Enum.filter(items, fn %{inserted_at: date} ->
       cond do
-        Date.compare(to_date(date), to_date(end_date)) == :gt -> false
-        true -> true
-      end
-    end)
-  end
-
-  @doc """
-  Given a list of items containing an inserted_at value returns a map of items
-  separated in to before range, in range, and after range.
-
-  "In range" is defined by whole day inclusive
-  """
-  @spec split_by_date(list(filterable), date_value, date_value) :: %{
-          before_range: date_value,
-          after_range: date_value,
-          in_range: date_value
-        }
-  def split_by_date(items, start_date, end_date) do
-    Enum.group_by(items, fn %{inserted_at: date} ->
-      cond do
-        Date.compare(to_date(date), to_date(start_date)) == :lt -> :before_range
-        Date.compare(to_date(date), to_date(end_date)) == :gt -> :after_range
-        true -> :in_range
+        Date.compare(to_date(date), to_date(end_date)) == :lt -> true
+        true -> false
       end
     end)
   end

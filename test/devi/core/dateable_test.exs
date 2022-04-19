@@ -1,65 +1,36 @@
 defmodule Devi.Core.DateableTest do
   use ExUnit.Case, async: true
   alias Devi.Core.Dateable
-  alias Devi.CoreFixtures
 
   setup do
-    early =
-      CoreFixtures.account_entry_fixture(%{
-        inserted_at: "2022-01-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
-      })
+    early = %{
+      inserted_at: "2022-01-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
+    }
 
-    middle =
-      CoreFixtures.account_entry_fixture(%{
-        inserted_at: "2022-02-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
-      })
+    middle = %{
+      inserted_at: "2022-02-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
+    }
 
-    late =
-      CoreFixtures.account_entry_fixture(%{
-        inserted_at: "2022-03-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
-      })
+    late = %{
+      inserted_at: "2022-03-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
+    }
 
-    %{entries: [early, middle, late], early: early, middle: middle, late: late}
+    %{items: [early, middle, late], early: early, middle: middle, late: late}
   end
 
-  describe "limit_by_date_range/3" do
-    test "limits a list to just results within the range", %{entries: entries, middle: middle} do
-      result = Dateable.limit_by_date_range(entries, "2022-02-01", "2022-02-28")
+  describe "entries_in_range/3" do
+    test "limits a list to just results within the range", %{items: items, middle: middle} do
+      result = Dateable.entries_in_range(items, "2022-02-01", "2022-02-28")
       assert Enum.count(result) == 1
       assert result == [middle]
     end
   end
 
-  describe "limit_by_start_date/2" do
-    test "returns only items after the start date", %{entries: entries, late: late} do
-      result = Dateable.limit_by_start_date(entries, "2022-03-01")
-      assert Enum.count(result) == 1
-      assert result == [late]
-    end
-  end
-
-  describe "limit_by_end_date/2" do
-    test "returns only items before the end date", %{entries: entries, early: early} do
-      result = Dateable.limit_by_end_date(entries, "2022-01-31")
+  describe "entries_before/2" do
+    test "returns only items before the end date", %{items: items, early: early} do
+      result = Dateable.entries_before(items, "2022-01-31")
       assert Enum.count(result) == 1
       assert result == [early]
-    end
-  end
-
-  describe "split_by_date/3" do
-    test "returns only items in the date range", %{
-      entries: entries,
-      early: early,
-      middle: middle,
-      late: late
-    } do
-      result = Dateable.split_by_date(entries, "2022-02-01", "2022-02-28")
-
-      assert result == %{
-               before_range: [early],
-               in_range: [middle],
-               after_range: [late]
-             }
     end
   end
 
