@@ -70,7 +70,7 @@ defmodule Devi.Core.Statements.RetainedEarnings do
 
   """
   @spec new(%{history: PeriodLedger.t(), period: PeriodLedger.t()}) :: t
-  def new(%{history: history_ledger, period: period_ledger}) do
+  def new(%{history: %PeriodLedger{} = history_ledger, period: %PeriodLedger{} = period_ledger}) do
     %{revenue: starting_revenues, expense: starting_expenses, dividend: starting_dividends} =
       PeriodLedger.fetch_totals(history_ledger, [:revenue, :expense, :dividend])
 

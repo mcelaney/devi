@@ -90,7 +90,7 @@ defmodule Devi.Core.Statements.BalanceSheet do
 
   defstruct ~w[asset_sheet equity_liability_sheet period_end]a
 
-  def new(period_ledger) do
+  def new(%PeriodLedger{} = period_ledger) do
     sub_totals = PeriodLedger.fetch_sub_totals(period_ledger, Core.account_types())
     totals = PeriodLedger.fetch_totals(period_ledger, Core.account_types())
     retained_earnings = totals[:revenue] - totals[:expense] - totals[:dividend]
