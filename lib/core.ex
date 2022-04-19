@@ -19,5 +19,6 @@ defmodule Devi.Core do
   defdelegate purchase_with_asset(ledger, params), to: GeneralLedger
 
   defdelegate generate_income_statement(subledger), to: Statements
-  defdelegate generate_retained_earnings_statement(subledger), to: Statements
+  defdelegate generate_retained_earnings_statement(subledgers), to: Statements
+  defdelegate generate_balance_sheet_statement(subledger), to: Statements
 end

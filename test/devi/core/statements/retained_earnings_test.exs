@@ -29,7 +29,7 @@ defmodule Devi.Core.Statements.RetainedEarningsTest do
   end
 
   describe "new/1" do
-    test "will generate an income statememnt", %{
+    test "will generate an retained earnings statememnt", %{
       history_subledger: history_subledger,
       period_subledger: period_subledger,
       begining_of_month: begining_of_month,

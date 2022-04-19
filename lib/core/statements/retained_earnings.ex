@@ -3,7 +3,8 @@ defmodule Devi.Core.Statements.RetainedEarnings do
   Provides information about the profitability of the company for a particular
   period
 
-  In practice a printed income statement would look something like this:
+  In practice a printed retained earnings statement would look something like
+  this:
 
   |----------------------------------------------|
   |       Statement of Retained Earnings         |
