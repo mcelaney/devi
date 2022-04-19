@@ -3,8 +3,8 @@ defmodule Devi.Core.Statements.IncomeTest do
   import Devi.CoreFixtures
 
   alias Devi.Core
+  alias Devi.Core.PeriodLedger
   alias Devi.Core.Statements.Income
-  alias Devi.Core.Subledger
 
   setup do
     now = "2022-03-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
@@ -19,9 +19,10 @@ defmodule Devi.Core.Statements.IncomeTest do
 
   describe "build/1" do
     setup(%{ledger: ledger} = state) do
-      subledger = Subledger.build(ledger, %{period_start: "2022-02-01", period_end: "2022-02-28"})
+      period_ledger =
+        PeriodLedger.build(ledger, %{period_start: "2022-02-01", period_end: "2022-02-28"})
 
-      Map.put(state, :subledger, subledger)
+      Map.put(state, :period_ledger, period_ledger)
     end
 
     test "will generate an income statememnt with dates", %{
@@ -29,8 +30,10 @@ defmodule Devi.Core.Statements.IncomeTest do
       period_start: period_start,
       period_end: period_end
     } do
-      subledger = Subledger.build(ledger, %{period_start: period_start, period_end: period_end})
-      result = Core.generate_income_statement(subledger)
+      period_ledger =
+        PeriodLedger.build(ledger, %{period_start: period_start, period_end: period_end})
+
+      result = Core.generate_income_statement(period_ledger)
 
       assert result == %Income{
                period_end: period_end,
@@ -47,8 +50,8 @@ defmodule Devi.Core.Statements.IncomeTest do
       ledger: ledger,
       period_end: period_end
     } do
-      subledger = Subledger.build(ledger, %{period_before: period_end})
-      result = Core.generate_income_statement(subledger)
+      period_ledger = PeriodLedger.build(ledger, %{period_before: period_end})
+      result = Core.generate_income_statement(period_ledger)
       period_end = period_end |> Date.add(-1)
 
       assert result == %Income{
@@ -63,8 +66,8 @@ defmodule Devi.Core.Statements.IncomeTest do
     end
 
     test "will generate an income statememnt with jno dates", %{ledger: ledger} do
-      subledger = Subledger.build(ledger, %{})
-      result = Core.generate_income_statement(subledger)
+      period_ledger = PeriodLedger.build(ledger, %{})
+      result = Core.generate_income_statement(period_ledger)
 
       assert result == %Income{
                period_end: nil,

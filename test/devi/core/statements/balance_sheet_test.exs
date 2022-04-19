@@ -3,8 +3,8 @@ defmodule Devi.Core.Statements.BalanceSheetTest do
   import Devi.CoreFixtures
 
   alias Devi.Core
+  alias Devi.Core.PeriodLedger
   alias Devi.Core.Statements.BalanceSheet
-  alias Devi.Core.Subledger
 
   setup do
     now = "2022-03-03T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
@@ -12,15 +12,15 @@ defmodule Devi.Core.Statements.BalanceSheetTest do
     end_of_month = Date.from_iso8601!("2022-03-31")
     ledger = general_ledger_fixture(%{now: now, preload_accounts: true, transactions: true})
 
-    subledger =
-      Subledger.build(ledger, %{period_start: begining_of_month, period_end: end_of_month})
+    period_ledger =
+      PeriodLedger.build(ledger, %{period_start: begining_of_month, period_end: end_of_month})
 
-    %{subledger: subledger}
+    %{period_ledger: period_ledger}
   end
 
   describe "new/1" do
-    test "generates a balance sheet", %{subledger: subledger} do
-      result = Core.generate_balance_sheet_statement(subledger)
+    test "generates a balance sheet", %{period_ledger: period_ledger} do
+      result = Core.generate_balance_sheet_statement(period_ledger)
 
       assert result == %BalanceSheet{
                asset_sheet: %{

@@ -31,7 +31,7 @@ defmodule Devi.Core.Statements.RetainedEarnings do
   }
   """
   alias Devi.Core.Dateable
-  alias Devi.Core.Subledger
+  alias Devi.Core.PeriodLedger
 
   @typedoc """
   A date in `year-mo-da` format
@@ -57,7 +57,7 @@ defmodule Devi.Core.Statements.RetainedEarnings do
 
   # Examples
     
-    iex> Devi.Core.Statement.Income.new(%Subledger{...})
+    iex> Devi.Core.Statement.Income.new(%PeriodLedger{...})
 
     %Devi.Core.Statement.RetainedEarnings{
           starting: non_neg_integer,
@@ -69,13 +69,13 @@ defmodule Devi.Core.Statements.RetainedEarnings do
         }
 
   """
-  @spec new(%{history: Subledger.t(), period: Subledger.t()}) :: t
+  @spec new(%{history: PeriodLedger.t(), period: PeriodLedger.t()}) :: t
   def new(%{history: history_ledger, period: period_ledger}) do
     %{revenue: starting_revenues, expense: starting_expenses, dividend: starting_dividends} =
-      Subledger.fetch_totals(history_ledger, [:revenue, :expense, :dividend])
+      PeriodLedger.fetch_totals(history_ledger, [:revenue, :expense, :dividend])
 
     %{revenue: revenue_subtotal, expense: expense_subtotal, dividend: dividend_subtotal} =
-      Subledger.fetch_totals(period_ledger, [:revenue, :expense, :dividend])
+      PeriodLedger.fetch_totals(period_ledger, [:revenue, :expense, :dividend])
 
     starting = starting_revenues - starting_expenses - starting_dividends
 

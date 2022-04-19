@@ -64,7 +64,7 @@ defmodule Devi.Core.Statements.BalanceSheet do
   }
   """
   alias Devi.Core
-  alias Devi.Core.Subledger
+  alias Devi.Core.PeriodLedger
 
   @type t :: %__MODULE__{
           asset_sheet: %{
@@ -90,9 +90,9 @@ defmodule Devi.Core.Statements.BalanceSheet do
 
   defstruct ~w[asset_sheet equity_liability_sheet period_end]a
 
-  def new(subledger) do
-    sub_totals = Subledger.fetch_sub_totals(subledger, Core.account_types())
-    totals = Subledger.fetch_totals(subledger, Core.account_types())
+  def new(period_ledger) do
+    sub_totals = PeriodLedger.fetch_sub_totals(period_ledger, Core.account_types())
+    totals = PeriodLedger.fetch_totals(period_ledger, Core.account_types())
     retained_earnings = totals[:revenue] - totals[:expense] - totals[:dividend]
 
     %__MODULE__{
@@ -118,7 +118,7 @@ defmodule Devi.Core.Statements.BalanceSheet do
         },
         total: retained_earnings + totals[:capital] + totals[:liability]
       },
-      period_end: subledger.period_end
+      period_end: period_ledger.period_end
     }
   end
 end

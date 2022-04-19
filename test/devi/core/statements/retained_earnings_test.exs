@@ -3,8 +3,8 @@ defmodule Devi.Core.Statements.RetainedEarningsTest do
   import Devi.CoreFixtures
 
   alias Devi.Core
+  alias Devi.Core.PeriodLedger
   alias Devi.Core.Statements.RetainedEarnings
-  alias Devi.Core.Subledger
 
   setup do
     now = "2022-03-03T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
@@ -15,30 +15,30 @@ defmodule Devi.Core.Statements.RetainedEarningsTest do
     ledger =
       general_ledger_fixture(%{now: now, older: older, preload_accounts: true, transactions: true})
 
-    history_subledger = Subledger.build(ledger, %{period_before: begining_of_month})
+    history_period_ledger = PeriodLedger.build(ledger, %{period_before: begining_of_month})
 
-    period_subledger =
-      Subledger.build(ledger, %{period_start: begining_of_month, period_end: end_of_month})
+    period_period_ledger =
+      PeriodLedger.build(ledger, %{period_start: begining_of_month, period_end: end_of_month})
 
     %{
       begining_of_month: begining_of_month,
       end_of_month: end_of_month,
-      history_subledger: history_subledger,
-      period_subledger: period_subledger
+      history_period_ledger: history_period_ledger,
+      period_period_ledger: period_period_ledger
     }
   end
 
   describe "new/1" do
     test "will generate an retained earnings statememnt", %{
-      history_subledger: history_subledger,
-      period_subledger: period_subledger,
+      history_period_ledger: history_period_ledger,
+      period_period_ledger: period_period_ledger,
       begining_of_month: begining_of_month,
       end_of_month: end_of_month
     } do
       result =
         Core.generate_retained_earnings_statement(%{
-          history: history_subledger,
-          period: period_subledger
+          history: history_period_ledger,
+          period: period_period_ledger
         })
 
       assert result == %RetainedEarnings{

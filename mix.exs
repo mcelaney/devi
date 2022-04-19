@@ -7,7 +7,18 @@ defmodule Devi.MixProject do
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+
+      # Docs
+      name: "Devi",
+      description: "An accounting management logic library",
+      source_url: "https://github.com/mcelaney/devi",
+      homepage_url: "https://github.com/mcelaney/devi",
+      docs: [
+        # The main page in the docs
+        main: "Devi",
+        extras: ["README.md"]
+      ]
     ]
   end
 
@@ -22,7 +33,8 @@ defmodule Devi.MixProject do
   defp deps do
     [
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:faker, "~> 0.17", only: :test}
+      {:faker, "~> 0.17", only: :test},
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]

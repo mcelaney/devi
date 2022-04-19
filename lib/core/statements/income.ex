@@ -33,7 +33,7 @@ defmodule Devi.Core.Statements.Income do
   }
   """
   alias Devi.Core.Dateable
-  alias Devi.Core.Subledger
+  alias Devi.Core.PeriodLedger
 
   @typedoc """
   A date in `year-mo-da` format
@@ -60,7 +60,7 @@ defmodule Devi.Core.Statements.Income do
 
   # Examples
     
-    iex> Devi.Core.Statement.Income.new(%Subledger{...})
+    iex> Devi.Core.Statement.Income.new(%PeriodLedger{...})
 
     %Devi.Core.Statement.Income{
       end_date: "2022-02-01",
@@ -73,25 +73,25 @@ defmodule Devi.Core.Statements.Income do
     }
 
   """
-  @spec new(Subledger.t()) :: t
-  def new(%Subledger{} = subledger) do
+  @spec new(PeriodLedger.t()) :: t
+  def new(%PeriodLedger{} = period_ledger) do
     %__MODULE__{}
-    |> put_account_summaries(subledger)
-    |> put_subtotals(subledger)
+    |> put_account_summaries(period_ledger)
+    |> put_subtotals(period_ledger)
     |> put_total()
-    |> put_dates(subledger)
+    |> put_dates(period_ledger)
   end
 
-  defp put_account_summaries(token, subledger) do
+  defp put_account_summaries(token, period_ledger) do
     %{expense: expense, revenue: revenue} =
-      Subledger.fetch_sub_totals(subledger, [:expense, :revenue])
+      PeriodLedger.fetch_sub_totals(period_ledger, [:expense, :revenue])
 
     %{token | expenses: expense, revenues: revenue}
   end
 
-  defp put_subtotals(token, subledger) do
+  defp put_subtotals(token, period_ledger) do
     %{expense: expense, revenue: revenue} =
-      Subledger.fetch_totals(subledger, [:expense, :revenue])
+      PeriodLedger.fetch_totals(period_ledger, [:expense, :revenue])
 
     %{token | expenses_subtotal: expense, revenues_subtotal: revenue}
   end

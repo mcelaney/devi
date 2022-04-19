@@ -1,7 +1,7 @@
-defmodule Devi.Core.SubledgerTest do
+defmodule Devi.Core.PeriodLedgerTest do
   use ExUnit.Case, async: true
   import Devi.CoreFixtures
-  alias Devi.Core.Subledger
+  alias Devi.Core.PeriodLedger
 
   setup do
     older = "2022-01-01T23:50:07Z" |> DateTime.from_iso8601() |> elem(1)
@@ -22,12 +22,12 @@ defmodule Devi.Core.SubledgerTest do
 
   # dumb test coverage hack
   test "requires all keys to be created" do
-    assert %Subledger{}
+    assert %PeriodLedger{}
   end
 
   describe "build/2" do
     test "splits entries in to their correct account types", %{ledger: ledger} do
-      result = Subledger.build(ledger)
+      result = PeriodLedger.build(ledger)
       assert is_nil(result.period_end)
       assert is_nil(result.period_start)
       assert Enum.count(result.asset) == 36
@@ -39,7 +39,7 @@ defmodule Devi.Core.SubledgerTest do
     end
 
     test "can limits entries to a time period", %{ledger: ledger} do
-      result = Subledger.build(ledger, %{period_before: "2022-03-01"})
+      result = PeriodLedger.build(ledger, %{period_before: "2022-03-01"})
       assert result.period_end == Date.from_iso8601!("2022-02-28")
       assert is_nil(result.period_start)
       assert Enum.count(result.asset) == 24
@@ -51,7 +51,7 @@ defmodule Devi.Core.SubledgerTest do
     end
 
     test "can limit entries a period end", %{ledger: ledger} do
-      result = Subledger.build(ledger, %{period_start: "2022-02-01", period_end: "2022-02-28"})
+      result = PeriodLedger.build(ledger, %{period_start: "2022-02-01", period_end: "2022-02-28"})
       assert result.period_end == Date.from_iso8601!("2022-02-28")
       assert result.period_start == Date.from_iso8601!("2022-02-01")
       assert Enum.count(result.asset) == 12
@@ -65,16 +65,20 @@ defmodule Devi.Core.SubledgerTest do
 
   describe "fetch_sub_totals/2" do
     test "will fetch grouped subtotals for all requested keys", %{ledger: ledger} do
-      subledger = Subledger.build(ledger, %{period_start: "2022-02-01", period_end: "2022-02-28"})
-      result = Subledger.fetch_sub_totals(subledger, [:expense, :revenue])
+      period_ledger =
+        PeriodLedger.build(ledger, %{period_start: "2022-02-01", period_end: "2022-02-28"})
+
+      result = PeriodLedger.fetch_sub_totals(period_ledger, [:expense, :revenue])
       assert result == %{expense: %{rent: 2000, salary: 1200}, revenue: %{service: 8500}}
     end
   end
 
   describe "fetch_totals/2" do
     test "will fetch subtotals for all requested keys", %{ledger: ledger} do
-      subledger = Subledger.build(ledger, %{period_start: "2022-02-01", period_end: "2022-02-28"})
-      result = Subledger.fetch_totals(subledger, [:expense, :revenue])
+      period_ledger =
+        PeriodLedger.build(ledger, %{period_start: "2022-02-01", period_end: "2022-02-28"})
+
+      result = PeriodLedger.fetch_totals(period_ledger, [:expense, :revenue])
       assert result == %{expense: 3200, revenue: 8500}
     end
   end

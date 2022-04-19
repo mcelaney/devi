@@ -4,6 +4,4 @@ defmodule Devi do
   application will provide interfaces for defining these entities, recording
   their changes over time, and reporting.
   """
-
-  alias Devi.Core
 end

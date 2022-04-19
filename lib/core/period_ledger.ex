@@ -1,10 +1,10 @@
-defmodule Devi.Core.Subledger do
+defmodule Devi.Core.PeriodLedger do
   @moduledoc """
-  A subledger represents the changes to general ledger over a specific time period
+  A period_ledger represents the changes to general ledger over a specific time period
 
   While a GeneralLedger holds transactions and is the source of truth for the
-  system - Subledgers serve as materialized views which contain LedgerEntries but
-  no record of why those entries exist. Subledgers can be rebuilt from the
+  system - PeriodLedgers serve as materialized views which contain LedgerEntries but
+  no record of why those entries exist. PeriodLedgers can be rebuilt from the
   GeneralLedger whenever necessary - but in theory once the books are closed on a
   period this should be unneccessary.
   """
@@ -32,8 +32,9 @@ defmodule Devi.Core.Subledger do
   def build(%GeneralLedger{journal_entries: transactions}, options \\ %{}) do
     transactions
     |> limit_to_period(options)
-    |> Enum.reduce(%__MODULE__{}, fn %Transaction{account_entries: account_entries}, sub_ledger ->
-      add_entries_to_sub_ledger(sub_ledger, account_entries)
+    |> Enum.reduce(%__MODULE__{}, fn %Transaction{account_entries: account_entries},
+                                     period_ledger ->
+      add_entries_to_period_ledger(period_ledger, account_entries)
     end)
     |> add_period_info(options)
   end
@@ -48,10 +49,10 @@ defmodule Devi.Core.Subledger do
 
   defp limit_to_period(entries, _), do: entries
 
-  defp add_entries_to_sub_ledger(sub_ledger, account_entries) do
+  defp add_entries_to_period_ledger(period_ledger, account_entries) do
     Enum.reduce(
       account_entries,
-      sub_ledger,
+      period_ledger,
       fn %LedgerEntry{account: %{type: type}} = entry, ledger ->
         current_entries = Map.fetch!(ledger, type)
         Map.put(ledger, type, [entry | current_entries])
