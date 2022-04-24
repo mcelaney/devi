@@ -9,30 +9,19 @@ defmodule Devi.Core.GeneralLedger do
   the Journel Entries. Transactions are added to the list of journal entries
   through functions:
 
-  - `Devi.Core.GeneralLedger.EnterTransactionearn_asset_revenue/2`
-  - `Devi.Core.GeneralLedger.EnterTransactionmake_contribution/2`
-  - `Devi.Core.GeneralLedger.EnterTransactionpay_dividend/2`
-  - `Devi.Core.GeneralLedger.EnterTransactionpay_expenses/2`
-  - `Devi.Core.GeneralLedger.EnterTransactionpay_on_account/2`
-  - `Devi.Core.GeneralLedger.EnterTransactionpurchase_on_account/2`
-  - `Devi.Core.GeneralLedger.EnterTransactionpurchase_with_asset/2`
+  - `Devi.Core.GeneralLedger.EnterTransaction.earn_asset_revenue/2`
+  - `Devi.Core.GeneralLedger.EnterTransaction.receive_finance_contribution/2`
+  - `Devi.Core.GeneralLedger.EnterTransaction.pay_dividend/2`
+  - `Devi.Core.GeneralLedger.EnterTransaction.pay_expenses/2`
+  - `Devi.Core.GeneralLedger.EnterTransaction.pay_on_account/2`
+  - `Devi.Core.GeneralLedger.EnterTransaction.finance_operating_purchase/2`
+  - `Devi.Core.GeneralLedger.EnterTransaction.make_investment_purchase/2`
   """
 
+  alias Devi.Core.Account
   alias Devi.Core.Dateable
-  alias Devi.Core.GeneralLedger.Account
   alias Devi.Core.GeneralLedger.ChartOfAccounts
-  alias Devi.Core.GeneralLedger.EnterTransaction
   alias Devi.Core.GeneralLedger.Transaction
-
-  defdelegate account_types, to: Account
-
-  defdelegate earn_asset_revenue(ledger, params), to: EnterTransaction
-  defdelegate make_contribution(ledger, params), to: EnterTransaction
-  defdelegate pay_dividend(ledger, params), to: EnterTransaction
-  defdelegate pay_expenses(ledger, params), to: EnterTransaction
-  defdelegate pay_on_account(ledger, params), to: EnterTransaction
-  defdelegate purchase_on_account(ledger, params), to: EnterTransaction
-  defdelegate purchase_with_asset(ledger, params), to: EnterTransaction
 
   @type account_id :: ChartOfAccounts.id_type()
   @type t :: %__MODULE__{
@@ -45,6 +34,9 @@ defmodule Devi.Core.GeneralLedger do
 
   defstruct chart_of_accounts: %{},
             journal_entries: []
+
+  defdelegate account_types, to: Account
+  defdelegate add_to_ledger(ledger, entries, now, meta), to: Transaction
 
   @doc """
   Adds an acoount to the chart of accounts.

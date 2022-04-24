@@ -9,6 +9,10 @@ defmodule Devi.Core.LedgerEntry do
   """
 
   alias Devi.Core.GeneralLedger.Account
+  alias Devi.Core.LedgerEntry.CollectingActivity
+  alias Devi.Core.LedgerEntry.FinancingActivity
+  alias Devi.Core.LedgerEntry.InvestingActivity
+  alias Devi.Core.LedgerEntry.OperatingActivity
 
   @typedoc """
   Whether the amount is expected to add to or subtract from the given account
@@ -24,7 +28,6 @@ defmodule Devi.Core.LedgerEntry do
   it really could be any identifier. In practice it's probably an id from an Ecto
   schema from some caller.
   """
-
   @type t :: %__MODULE__{
           account: Account.t(),
           amount: pos_integer,
@@ -35,6 +38,20 @@ defmodule Devi.Core.LedgerEntry do
   @enforce_keys ~w[account amount type inserted_at]a
   defstruct ~w[account amount type inserted_at]a
 
+  defdelegate receive_capital(params), to: FinancingActivity
+  defdelegate pay_dividend(params), to: FinancingActivity
+  defdelegate receive_revenue(params), to: CollectingActivity
+  defdelegate receive_payment_on_account(params), to: CollectingActivity
+  defdelegate pay_operating_expense(params), to: OperatingActivity
+  defdelegate accept_operating_liability(params), to: OperatingActivity, as: :accept_liability
+  defdelegate repay_operating_obligation(params), to: OperatingActivity, as: :repay_obligation
+  defdelegate pay_investment(params), to: InvestingActivity
+  defdelegate accept_investing_liability(params), to: InvestingActivity, as: :accept_liability
+  defdelegate repay_investing_obligation(params), to: InvestingActivity, as: :repay_obligation
+
+  @doc """
+  Genrates a new ledger entry which decreases the account balance
+  """
   @spec decrease_by(Account.t(), non_neg_integer, DateTime.t()) :: t
   def decrease_by(%{id: _, type: _} = account, amount, now) do
     %__MODULE__{
@@ -45,6 +62,9 @@ defmodule Devi.Core.LedgerEntry do
     }
   end
 
+  @doc """
+  Genrates a new ledger entry which increases the account balance
+  """
   @spec increase_by(Account.t(), non_neg_integer, DateTime.t()) :: t
   def increase_by(%{id: _, type: _} = account, amount, now) do
     %__MODULE__{

@@ -1,4 +1,4 @@
-defmodule Devi.Core.GeneralLedger.Account do
+defmodule Devi.Core.Account do
   @moduledoc """
   A record of the changes in value of a part of the accounting equation
 

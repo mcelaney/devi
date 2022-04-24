@@ -1,4 +1,4 @@
-defmodule Devi.Core.GeneralLedger.AccountTest do
+defmodule Devi.Core.AccountTest do
   use ExUnit.Case, async: true
 
   alias Devi.Core
