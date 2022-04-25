@@ -35,11 +35,6 @@ defmodule Devi.Core.Statements.Income do
   alias Devi.Core.Dateable
   alias Devi.Core.PeriodLedger
 
-  @typedoc """
-  A date in `year-mo-da` format
-  """
-  @type date_value :: Dateable.date_value()
-
   @type t :: %__MODULE__{
           expenses: %{optional(any) => non_neg_integer},
           expenses_subtotal: non_neg_integer,

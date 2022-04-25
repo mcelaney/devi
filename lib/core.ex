@@ -14,6 +14,7 @@ defmodule Devi.Core do
   defdelegate generate_income_statement(period_ledger), to: Statements
   defdelegate generate_retained_earnings_statement(period_ledgers), to: Statements
   defdelegate generate_balance_sheet_statement(period_ledger), to: Statements
+  defdelegate generate_cash_flows_statement(period_ledgers), to: Statements
 
   def accept_investing_liability(ledger, params) do
     params

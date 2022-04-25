@@ -30,13 +30,7 @@ defmodule Devi.Core.Statements.RetainedEarnings do
     period_start: ~D[2022-11-30]
   }
   """
-  alias Devi.Core.Dateable
   alias Devi.Core.PeriodLedger
-
-  @typedoc """
-  A date in `year-mo-da` format
-  """
-  @type date_value :: Dateable.date_value()
 
   @type t :: %__MODULE__{
           starting: non_neg_integer,

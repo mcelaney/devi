@@ -26,17 +26,20 @@ defmodule Devi.Core.PeriodLedger do
             liability: [],
             revenue: [],
             period_end: nil,
-            period_start: nil
+            period_start: nil,
+            journal_entries: []
 
   @spec build(GeneralLedger.t(), filter_information) :: t
   def build(%GeneralLedger{journal_entries: transactions}, options \\ %{}) do
-    transactions
-    |> limit_to_period(options)
+    valid_transactions = limit_to_period(transactions, options)
+
+    valid_transactions
     |> Enum.reduce(%__MODULE__{}, fn %Transaction{account_entries: account_entries},
                                      period_ledger ->
       add_entries_to_period_ledger(period_ledger, account_entries)
     end)
     |> add_period_info(options)
+    |> add_journal_entries(valid_transactions)
   end
 
   defp limit_to_period(entries, %{period_before: end_date}) do
@@ -65,12 +68,14 @@ defmodule Devi.Core.PeriodLedger do
   end
 
   defp add_period_info(ledger, %{period_start: start_date, period_end: end_date}) do
-    ledger
-    |> Map.put(:period_start, Dateable.to_date(start_date))
-    |> Map.put(:period_end, Dateable.to_date(end_date))
+    %{ledger | period_start: Dateable.to_date(start_date), period_end: Dateable.to_date(end_date)}
   end
 
   defp add_period_info(ledger, _), do: ledger
+
+  defp add_journal_entries(ledger, journal_entries) do
+    %{ledger | journal_entries: journal_entries}
+  end
 
   @spec fetch_sub_totals(t, list(Account.account_type())) :: map
   def fetch_sub_totals(ledger, account_types) do
