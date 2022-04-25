@@ -2,6 +2,7 @@ defmodule Devi.Core do
   @moduledoc """
   A functional core for functionality provided by Devi
   """
+  alias Devi.Core.Formula
   alias Devi.Core.GeneralLedger
   alias Devi.Core.LedgerEntry
   alias Devi.Core.Statements
@@ -15,6 +16,8 @@ defmodule Devi.Core do
   defdelegate generate_retained_earnings_statement(period_ledgers), to: Statements
   defdelegate generate_balance_sheet_statement(period_ledger), to: Statements
   defdelegate generate_cash_flows_statement(period_ledgers), to: Statements
+
+  defdelegate return_on_assets(period_ledgers), to: Formula
 
   def accept_investing_liability(ledger, params) do
     params
